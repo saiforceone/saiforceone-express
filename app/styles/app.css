@@ -521,10 +521,6 @@ video {
   display: flex;
 }
 
-.items-center {
-  align-items: center;
-}
-
 .self-center {
   align-self: center;
 }
@@ -546,11 +542,6 @@ video {
 .px-3 {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
-}
-
-.text-2xl {
-  font-size: 1.5rem;
-  line-height: 2rem;
 }
 
 .text-3xl {
