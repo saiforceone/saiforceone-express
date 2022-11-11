@@ -1,4 +1,5 @@
 import type { ComponentMeta, ComponentStory } from "@storybook/react";
+import {BsCloudCheckFill} from "react-icons/bs";
 
 import { BasicButton } from "~/components/shared/BasicButton/BasicButton";
 
@@ -11,5 +12,11 @@ const Template: ComponentStory<typeof BasicButton> = (args) => <BasicButton {...
 
 export const Primary = Template.bind({});
 Primary.args = {
-  title: 'Click Me!',
+  icon: <BsCloudCheckFill className="self-center mr-2" />,
+  title: 'Click Me with Icon!',
+};
+
+export const WithoutIcon = Template.bind({});
+WithoutIcon.args = {
+  title: 'Click Me No Icon',
 };
