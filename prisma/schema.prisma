@@ -6,17 +6,83 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
+enum UserAccountType {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum ContactType {
+  EMAIL
+  PHONE
+}
+
+enum PackageStatus {
+  RECEIVED_WAREHOUSE
+  RECEIVED_CUSTOMS
+  CUSTOMS_DETAINED
+  RECEIVED_STORE
+  DELIVERED
+}
+
 model User {
-  id            Int       @id @default(autoincrement())
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  emailAddress  String
+  id            String            @id @default(uuid())
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  emailAddress  String            @unique
   password      String
   firstName     String
   lastName      String
   active        Boolean
+  accountType   UserAccountType   @default(CUSTOMER)
+  contacts      UserContact[]
+  shipments     Shipment[]
+  mailboxes     Mailbox[]
+}
+
+model UserContact {
+  id            String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  contactType   ContactType
+  detail        String
+}
+
+model Shipment {
+  id                String            @id @default(uuid())
+  userId            String         
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  arrivalDate       DateTime
+  totalDue          Decimal
+  lastStatus        PackageStatus?
+  mailboxId         String
+  mailbox           Mailbox           @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  ShipmentStatues   ShipmentStatus[]
+}
+
+model ShipmentStatus {
+  id            String        @id @default(uuid())
+  shipmentId    String
+  shipment      Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  packageStatus PackageStatus @default(RECEIVED_WAREHOUSE)
+}
+
+model Mailbox {
+  id            String      @id @default(uuid())
+  shipments     Shipment[]
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addressLine1  String      @db.VarChar(100)
+  addressLine2  String      @db.VarChar(100)
+  unitCode      String      @db.VarChar(100)
+  zipCode       String      @db.VarChar(10)
+  city          String      @db.VarChar(50)
+  state         String      @db.VarChar(40)
+  country       String      @db.VarChar(40)
 }
