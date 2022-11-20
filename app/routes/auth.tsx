@@ -1,16 +1,24 @@
 import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
-import { validateEmail, validatePassword, validateUrl } from "~/utils/validations.server";
+import { useState } from "react";
+import { validateEmail, validateNameField, validatePassword } from "~/utils/validations.server";
 
 import { db } from "~/utils/db.server";
-import { createUserSession, login } from "~/utils/session.server";
+import { createUserSession, login, register } from "~/utils/session.server";
+
+type AuthMode = "login" | "register";
+
+interface AuthAction {
+  login: () => void;
+  register: () => void;
+}
 
 type ActionData = {
   formError?: string;
   fieldErrors?: {
-    emailAddress: string | undefined;
-    password: string | undefined;
+    emailAddress?: string;
+    password?: string;
   },
   fields?: {
     emailAddress: string;
@@ -19,31 +27,55 @@ type ActionData = {
   }
 }
 
-const badRequest = (data: ActionData) => json(data, {status: 400});
+type RegisterActionData = {
+  formError?: string;
+  fieldErrors?: {
+    firstName?: string;
+    lastName?: string;
+    emailAddress?: string;
+    password?: string;
+  },
+  fields?: {
+    firstName: string;
+    lastName: string;
+    emailAddress: string;
+    password: string;
+  }
+}
+
+const badRequest = (data: ActionData | RegisterActionData) => json(data, {status: 400});
 
 export const action: ActionFunction = async ({request}) => {
   const form = await request.formData();
-  const loginType = form.get("loginType");
-  const emailAddress = form.get("emailAddress");
-  const password = form.get("password");
 
-  if (typeof emailAddress !== "string" || typeof password !== "string" || typeof loginType !== "string") {
+  const loginType = form.get("loginType");
+  
+  if (typeof loginType !== "string") {
     return badRequest({formError: `There was a problem with data submitted`});
   }
 
-  const fields = { loginType, emailAddress, password };
-  const fieldErrors = {
-    emailAddress: validateEmail(emailAddress),
-    password: validatePassword(password),
-  };
-  if (Object.values(fieldErrors).some(Boolean))
-    return badRequest({ fieldErrors, fields });
+  const authType: AuthMode = loginType === "login" ? "login" : "register";
 
-  console.log("login type: ", loginType);
-  switch (loginType) {
-    case "login": {
+  async function handleLogin(form: FormData, loginType: string) {
+
+    const emailAddress = form.get("emailAddress");
+    const password = form.get("password");
+
+    if (typeof emailAddress !== "string" || typeof password !== "string") {
+      return badRequest({formError: `There was a problem with data submitted`});
+    }
+
+    const fields = { loginType, emailAddress, password };
+      const fieldErrors = {
+        emailAddress: validateEmail(emailAddress),
+        password: validatePassword(password),
+      };
+      
+      if (Object.values(fieldErrors).some(Boolean))
+        return badRequest({ fieldErrors, fields });
+
       const user = await login({ emailAddress, password });
-      console.log('logged in user: ', user);
+      
       if (!user) {
         return badRequest({
           fields,
@@ -52,34 +84,68 @@ export const action: ActionFunction = async ({request}) => {
       }
 
       return createUserSession(user.id, "/");
-    }
-    case "register": {
-      const userExists = await db.user.findFirst({
-        where: {emailAddress},
-      });
-      if (userExists) {
-        return badRequest({
-          fields,
-          formError: 'Unable to register. Email already used',
-        });
-      }
-      return badRequest({
-        fields,
-        formError: 'Unable to register right now',
-      })
-    }
-    default: {
-      return badRequest({
-        fields,
-        formError: 'Invalid authentication type'
-      })
-    }
+
   }
+
+  async function handleRegister(form: FormData, loginType: string) {
+    const emailAddress = form.get("emailAddress");
+    const password = form.get("password");
+    const firstName = form.get("firstName");
+    const lastName = form.get("lastName");
+
+    if (
+      typeof emailAddress !== "string" ||
+      typeof password !== "string" ||
+      typeof firstName !== "string" ||
+      typeof lastName !== "string"
+    ) {
+      return badRequest({formError: `There was a problem with data submitted`});
+    }
+    const fields = {emailAddress, password, firstName, lastName};
+    const fieldErrors = {
+      emailAddress: validateEmail(emailAddress),
+      password: validatePassword(password),
+      firstName: validateNameField("firstName", firstName),
+      lastName: validateNameField("lastName", lastName),
+    }
+
+    if (Object.values(fieldErrors).some(Boolean))
+      return badRequest({ fieldErrors, fields });
+
+    const userExists = await db.user.findFirst({
+      where: {emailAddress},
+    });
+
+    if (userExists) {
+      return badRequest({
+        fields,
+        formError: 'Unable to register. Email already used',
+      });
+    }
+    
+    const user = await register({ emailAddress, password, firstName, lastName});
+    if (!user) {
+      return badRequest({
+        fields,
+        formError: `There was a problem with registering your account`,
+      })
+    }
+    return createUserSession(user.id, "/");
+  }
+  
+  
+  const objLit: AuthAction = {
+    login: () => handleLogin(form, loginType),
+    register: () => handleRegister(form, loginType),
+  }
+
+  return objLit[authType]();
 };
 
 export default function Auth() {
   const actionData = useActionData<ActionData>();
   const [searchParams] = useSearchParams();
+  const [authMode, setAuthMode] = useState<AuthMode>("login");
   return (
     <div>
       <h1>Login to SFE Logistics</h1>
@@ -95,9 +161,8 @@ export default function Auth() {
                 name="loginType"
                 type="radio"
                 value="login"
-                defaultChecked={
-                  !actionData?.fields?.loginType || actionData?.fields?.loginType === "login"
-                }
+                defaultChecked={authMode === "login"}
+                onChange={() => setAuthMode("login")}
               />{" "}
               Login
             </label>
@@ -106,18 +171,46 @@ export default function Auth() {
                 name="loginType"
                 type="radio"
                 value="register"
-                defaultChecked={
-                  actionData?.fields?.loginType === "register"
-                }
+                defaultChecked={authMode === "register"}
+                onChange={() => setAuthMode("register")}
               />{" "}
               Registration
             </label>
           </div>
+          {authMode === "register" ? (
+            <>
+              <div className="flex flex-col">
+                <label htmlFor="first-name">First Name</label>
+                <input
+                  className="border-2 border-slate-500"
+                  id="input-first-name"
+                  maxLength={70}
+                  minLength={2}
+                  name="firstName"
+                  required
+                  type="text"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label htmlFor="last-name">Last Name</label>
+                <input
+                  className="border-2 border-slate-500"
+                  id="input-last-name"
+                  maxLength={70}
+                  minLength={2}
+                  name="lastName"
+                  required
+                  type="text"
+                />
+              </div>
+            </>
+          ) : null}
           <div className="flex flex-col">
             <label htmlFor="email-address">Email Address</label>
             <input
               className="border-2 border-slate-500"
               id="input-email-address"
+              maxLength={100}
               name="emailAddress"
               type="email" 
             />
@@ -131,7 +224,8 @@ export default function Auth() {
             <label>Password</label>
             <input
               className="border-2 border-slate-500"
-              id="input-password" 
+              id="input-password"
+              maxLength={100}
               name="password" 
               type="password"
               autoComplete="off"
@@ -164,14 +258,14 @@ export default function Auth() {
               </p>
             ) : null}
           </div>
-          <button className="bg-slate-800 text-white px-4 py-2 mt-4" type="submit">
+          <button 
+            className="bg-slate-800 text-white px-4 py-2 mt-4"
+            type="submit"
+          >
             Submit
           </button>
         </fieldset>
       </Form>
-      <div>
-        <p>Have an account? Register instead</p>
-      </div>
     </div>
   );
 };

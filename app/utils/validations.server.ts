@@ -1,5 +1,11 @@
 import isEmail from "validator/lib/isEmail";
 
+export function validateNameField(fieldName: string, nameValue: unknown) {
+  if (typeof nameValue !== "string" || nameValue.length < 2) {
+    return `${fieldName} must be at lest 2 characters long`;
+  }
+}
+
 export function validateEmail(emailAddress: unknown) {
   if (typeof emailAddress !== "string" || !isEmail(emailAddress)) {
     return `Email address is not valid`;

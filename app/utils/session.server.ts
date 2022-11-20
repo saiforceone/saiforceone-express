@@ -3,7 +3,24 @@ import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
 import { db } from "./db.server";
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+  throw new Error("SESSION_SECRET has not been set.");
+}
+
+const SALT = process.env.SALT;
+if (!SALT) {
+  throw new Error("SALT has not been set.");
+}
+
 type LoginForm = {
+  emailAddress: string;
+  password: string;
+}
+
+type RegisterForm = {
+  firstName: string;
+  lastName: string;
   emailAddress: string;
   password: string;
 }
@@ -25,10 +42,50 @@ export async function login({
   return { id: user.id, emailAddress }
 }
 
-const sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret) {
-  throw new Error("SESSION_SECRET has not been set.");
+export async function register({
+  firstName,
+  lastName,
+  emailAddress,
+  password,
+}: RegisterForm) {
+  const pwHash = await bcrypt.hash(password, 10)
+  const user = await db.user.create({data: {
+    firstName,
+    lastName,
+    emailAddress,
+    password: pwHash,
+    active: true,
+  }});
+
+  return {id: user.id, emailAddress};
 }
+
+export async function getUser(request: Request, getAccountType: boolean = false) {
+  const userId = await getUserId(request);
+  if (typeof userId !== "string") {
+    return null;
+  }
+
+  try {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true, emailAddress: true,  accountType: getAccountType},
+    });
+    return user;
+  } catch {
+    throw logout(request);
+  }
+}
+
+export async function logout(request: Request) {
+  const session = await getUserSession(request);
+  return redirect("/login", {
+    headers: {
+      "Set-Cookie": await storage.destroySession(session),
+    },
+  });
+}
+
 
 const storage = createCookieSessionStorage({
   cookie: {
