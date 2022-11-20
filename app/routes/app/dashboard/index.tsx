@@ -1,4 +1,3 @@
-import type { User } from "@prisma/client";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -14,7 +13,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json({ user });
 }
 
-// TODO: HOC for auth
 export default function DashboardIndex() {
   const data = useLoaderData<LoaderData>();
   return (

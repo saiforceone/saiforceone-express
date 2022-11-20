@@ -17,8 +17,7 @@ export default function AppIndex() {
 
   return (
     <div>
-      <h2>App Index</h2>
       <Outlet />
     </div>
-  )
+  );
 }

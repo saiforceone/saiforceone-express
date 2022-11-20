@@ -1,6 +1,5 @@
 import { redirect, json } from "@remix-run/node";
 import type { LoaderFunction } from "@remix-run/node";
-import type { User } from "@prisma/client";
 import { getUser } from "~/utils/session.server";
 import { Outlet } from "@remix-run/react";
 
