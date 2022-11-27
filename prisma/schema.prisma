@@ -21,6 +21,11 @@ enum ContactType {
   PHONE
 }
 
+enum NotificationType {
+  GENERAL
+  PACKAGE_STATUS_UPDATE
+}
+
 enum PackageStatus {
   RECEIVED_WAREHOUSE
   RECEIVED_CUSTOMS
@@ -42,6 +47,7 @@ model User {
   contacts      UserContact[]
   shipments     Shipment[]
   mailboxes     Mailbox[]
+  notificationItems NotificationItem[]
 }
 
 model UserContact {
@@ -56,6 +62,8 @@ model UserContact {
 
 model Shipment {
   id                String            @id @default(uuid())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
   userId            String         
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   arrivalDate       DateTime
@@ -75,6 +83,8 @@ model ShipmentStatus {
 
 model Mailbox {
   id            String      @id @default(uuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   shipments     Shipment[]
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -85,4 +95,15 @@ model Mailbox {
   city          String      @db.VarChar(50)
   state         String      @db.VarChar(40)
   country       String      @db.VarChar(40)
+}
+
+model NotificationItem {
+  id                String            @id @default(uuid())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  notificationType  NotificationType  @default(GENERAL)
+  title             String            @db.VarChar(60)
+  detail            String            @db.VarChar(200)
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
