@@ -35,75 +35,90 @@ enum PackageStatus {
 }
 
 model User {
-  id            String            @id @default(uuid())
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  emailAddress  String            @unique
-  password      String
-  firstName     String
-  lastName      String
-  active        Boolean
-  accountType   UserAccountType   @default(CUSTOMER)
-  contacts      UserContact[]
-  shipments     Shipment[]
-  mailboxes     Mailbox[]
+  id                String             @id @default(uuid())
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  emailAddress      String             @unique
+  password          String
+  firstName         String
+  lastName          String
+  active            Boolean
+  accountType       UserAccountType    @default(CUSTOMER)
+  contacts          UserContact[]
+  shipments         Shipment[]
+  mailboxes         Mailbox[]
   notificationItems NotificationItem[]
 }
 
 model UserContact {
-  id            String      @id @default(uuid())
-  userId        String
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  contactType   ContactType
-  detail        String
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  contactType ContactType
+  detail      String
 }
 
 model Shipment {
-  id                String            @id @default(uuid())
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  userId            String         
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  arrivalDate       DateTime
-  totalDue          Decimal
-  lastStatus        PackageStatus?
-  mailboxId         String
-  mailbox           Mailbox           @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
-  ShipmentStatues   ShipmentStatus[]
+  id                 String           @id @default(uuid())
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  arrivalDate        DateTime
+  totalDue           Decimal
+  mailboxId          String
+  mailbox            Mailbox          @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  source             String
+  trackingNumber     String
+  measuredWeight     Decimal?
+  shippingWeight     Decimal
+  ShipmentStatues    ShipmentStatus[]
+  shipmentCategoryId String
+  shipmentCategory   ShipmentCategory @relation(fields: [shipmentCategoryId], references: [id])
+}
+
+model ShipmentCategory {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime
+  category  String     @db.VarChar(100)
+  Shipment  Shipment[]
 }
 
 model ShipmentStatus {
   id            String        @id @default(uuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   shipmentId    String
   shipment      Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
   packageStatus PackageStatus @default(RECEIVED_WAREHOUSE)
 }
 
 model Mailbox {
-  id            String      @id @default(uuid())
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  shipments     Shipment[]
-  userId        String
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  addressLine1  String      @db.VarChar(100)
-  addressLine2  String      @db.VarChar(100)
-  unitCode      String      @db.VarChar(100)
-  zipCode       String      @db.VarChar(10)
-  city          String      @db.VarChar(50)
-  state         String      @db.VarChar(40)
-  country       String      @db.VarChar(40)
+  id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  shipments    Shipment[]
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addressLine1 String     @db.VarChar(100)
+  addressLine2 String     @db.VarChar(100)
+  unitCode     String     @db.VarChar(100)
+  zipCode      String     @db.VarChar(10)
+  city         String     @db.VarChar(50)
+  state        String     @db.VarChar(40)
+  country      String     @db.VarChar(40)
 }
 
 model NotificationItem {
-  id                String            @id @default(uuid())
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  notificationType  NotificationType  @default(GENERAL)
-  title             String            @db.VarChar(60)
-  detail            String            @db.VarChar(200)
-  userId            String
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String           @id @default(uuid())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  notificationType NotificationType @default(GENERAL)
+  title            String           @db.VarChar(60)
+  detail           String           @db.VarChar(200)
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
