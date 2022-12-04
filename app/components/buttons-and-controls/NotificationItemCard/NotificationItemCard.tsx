@@ -1,5 +1,5 @@
-import type { FC } from "react";
-import { BsInfoSquareFill, BsXSquareFill } from "react-icons/bs";
+import type { FC } from 'react';
+import { BsInfoSquareFill, BsXSquareFill } from 'react-icons/bs';
 
 interface NotificationItemProps {
   detail: string;
@@ -8,11 +8,11 @@ interface NotificationItemProps {
   title: string;
 }
 
-export const NotificationItem: FC<NotificationItemProps> = ({
+export const NotificationItemCard: FC<NotificationItemProps> = ({
   timeSince,
   detail,
   dismissAction,
-  title
+  title,
 }) => {
   return (
     <div className="flex flex-1 bg-slate-100 rounded px-2 py-1 items-center">
@@ -22,9 +22,17 @@ export const NotificationItem: FC<NotificationItemProps> = ({
           <p className="text-base font-medium text-slate-700">{title}</p>
           <span className="text-sm text-slate-500">{timeSince}</span>
         </div>
-        <span className="text-sm text-slate-600 font-medium mt-0.5">{detail}</span>
+        <span className="text-sm text-slate-600 font-medium mt-0.5">
+          {detail}
+        </span>
       </div>
-      {dismissAction ? (<BsXSquareFill className="cursor-pointer ml-4" size={24} onClick={dismissAction} />) : null}
+      {dismissAction ? (
+        <BsXSquareFill
+          className="cursor-pointer ml-4"
+          size={24}
+          onClick={dismissAction}
+        />
+      ) : null}
     </div>
-  )
-}
+  );
+};

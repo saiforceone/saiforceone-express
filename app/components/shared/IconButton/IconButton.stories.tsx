@@ -3,7 +3,7 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { IconButton } from "~/components/shared/IconButton/IconButton";
 
 export default {
-  title: 'IconButton',
+  title: "Shared/IconButton",
   component: IconButton
 } as ComponentMeta<typeof IconButton>;
 

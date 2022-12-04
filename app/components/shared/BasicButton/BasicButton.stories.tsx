@@ -4,7 +4,7 @@ import {BsCloudCheckFill} from "react-icons/bs";
 import { BasicButton } from "~/components/shared/BasicButton/BasicButton";
 
 export default {
-  title: 'BasicButton',
+  title: "Shared/BasicButton",
   component: BasicButton,
 } as ComponentMeta<typeof BasicButton>;
 
