@@ -34,6 +34,12 @@ enum PackageStatus {
   DELIVERED
 }
 
+enum ShipmentDocType {
+  INVOICE
+  PERMIT
+  OTHER
+}
+
 model User {
   id                String             @id @default(uuid())
   createdAt         DateTime           @default(now())
@@ -77,6 +83,7 @@ model Shipment {
   ShipmentStatues    ShipmentStatus[]
   shipmentCategoryId String
   shipmentCategory   ShipmentCategory @relation(fields: [shipmentCategoryId], references: [id])
+  ShipmentDocuments   ShipmentDocument[]
 }
 
 model ShipmentCategory {
@@ -121,4 +128,15 @@ model NotificationItem {
   detail           String           @db.VarChar(200)
   userId           String
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ShipmentDocument {
+  id            String          @id @default(uuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  name          String
+  url           String
+  shipmentId    String
+  shipment      Shipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  documentType  ShipmentDocType @default(OTHER)
 }

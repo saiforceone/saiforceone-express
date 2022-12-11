@@ -1,9 +1,9 @@
-import React from "react";
-import type {FC, SelectHTMLAttributes} from "react";
+import React from 'react';
+import type { FC, SelectHTMLAttributes } from 'react';
 
-import {FieldWrapper} from "~/components/fields/FieldWrapper/FieldWrapper";
+import { FieldWrapper } from '~/components/fields/FieldWrapper/FieldWrapper';
 
-interface SelectOption {
+export interface SelectOption {
   key: string;
   label: string;
   value?: string;
@@ -14,23 +14,29 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   selectOptions?: SelectOption[];
 }
 
-export const Select: FC<SelectProps> = ({fieldLabel, selectOptions, ...props}) => {
+export const Select: FC<SelectProps> = ({
+  fieldLabel,
+  selectOptions,
+  ...props
+}) => {
   return (
     <FieldWrapper
       field={
         <select
           {...props}
           className={[
-            "h-10 border-1 border-slate-600 rounded px-2",
-            props.disabled ? "cursor-not-allowed" : "cursor-pointer"
-          ].join(" ")}
+            'h-10 border-1 border-slate-600 rounded px-2 w-full',
+            props.disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+          ].join(' ')}
         >
-          <option disabled value="">Choose</option>
-          {selectOptions?.map(
-            option => (
-              <option key={option.key} value={option.value}>{option.label}</option>
-            ))
-          }
+          <option disabled value="">
+            Choose
+          </option>
+          {selectOptions?.map((option) => (
+            <option key={option.key} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       }
       fieldId={props.id}

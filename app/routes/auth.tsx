@@ -1,13 +1,17 @@
-import { Form, useActionData, useSearchParams } from "@remix-run/react";
-import { json } from "@remix-run/node";
-import type { ActionFunction } from "@remix-run/node";
-import { useState } from "react";
-import { validateEmail, validateNameField, validatePassword } from "~/utils/validations.server";
+import { Form, useActionData, useSearchParams } from '@remix-run/react';
+import { json } from '@remix-run/node';
+import type { ActionFunction } from '@remix-run/node';
+import { useState } from 'react';
+import {
+  validateEmail,
+  validateNameField,
+  validatePassword,
+} from '~/utils/validations.server';
 
-import { db } from "~/utils/db.server";
-import { createUserSession, login, register } from "~/utils/session.server";
-
-type AuthMode = "login" | "register";
+import { db } from '~/utils/db.server';
+import { createUserSession, login, register } from '~/utils/session.server';
+import { AuthForm } from '~/components/forms/AuthForm/AuthForm';
+import type { AuthMode } from '~/shared/types/types';
 
 interface AuthAction {
   login: () => void;
@@ -19,13 +23,13 @@ type ActionData = {
   fieldErrors?: {
     emailAddress?: string;
     password?: string;
-  },
+  };
   fields?: {
     emailAddress: string;
     password: string;
     loginType: string;
-  }
-}
+  };
+};
 
 type RegisterActionData = {
   formError?: string;
@@ -34,86 +38,89 @@ type RegisterActionData = {
     lastName?: string;
     emailAddress?: string;
     password?: string;
-  },
+  };
   fields?: {
     firstName: string;
     lastName: string;
     emailAddress: string;
     password: string;
-  }
-}
+  };
+};
 
-const badRequest = (data: ActionData | RegisterActionData) => json(data, {status: 400});
+const badRequest = (data: ActionData | RegisterActionData) =>
+  json(data, { status: 400 });
 
-export const action: ActionFunction = async ({request}) => {
+export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
 
-  const loginType = form.get("loginType");
-  
-  if (typeof loginType !== "string") {
-    return badRequest({formError: `There was a problem with data submitted`});
+  const loginType = form.get('loginType');
+
+  if (typeof loginType !== 'string') {
+    return badRequest({ formError: `There was a problem with data submitted` });
   }
 
-  const authType: AuthMode = loginType === "login" ? "login" : "register";
+  const authType: AuthMode = loginType === 'login' ? 'login' : 'register';
 
   async function handleLogin(form: FormData, loginType: string) {
+    const emailAddress = form.get('emailAddress');
+    const password = form.get('password');
 
-    const emailAddress = form.get("emailAddress");
-    const password = form.get("password");
-
-    if (typeof emailAddress !== "string" || typeof password !== "string") {
-      return badRequest({formError: `There was a problem with data submitted`});
+    if (typeof emailAddress !== 'string' || typeof password !== 'string') {
+      return badRequest({
+        formError: `There was a problem with data submitted`,
+      });
     }
 
     const fields = { loginType, emailAddress, password };
-      const fieldErrors = {
-        emailAddress: validateEmail(emailAddress),
-        password: validatePassword(password),
-      };
-      
-      if (Object.values(fieldErrors).some(Boolean))
-        return badRequest({ fieldErrors, fields });
-
-      const user = await login({ emailAddress, password });
-      
-      if (!user) {
-        return badRequest({
-          fields,
-          formError: `Invalid credentials`,
-        });
-      }
-
-      return createUserSession(user.id, "/");
-
-  }
-
-  async function handleRegister(form: FormData, loginType: string) {
-    const emailAddress = form.get("emailAddress");
-    const password = form.get("password");
-    const firstName = form.get("firstName");
-    const lastName = form.get("lastName");
-
-    if (
-      typeof emailAddress !== "string" ||
-      typeof password !== "string" ||
-      typeof firstName !== "string" ||
-      typeof lastName !== "string"
-    ) {
-      return badRequest({formError: `There was a problem with data submitted`});
-    }
-    const fields = {emailAddress, password, firstName, lastName};
     const fieldErrors = {
       emailAddress: validateEmail(emailAddress),
       password: validatePassword(password),
-      firstName: validateNameField("firstName", firstName),
-      lastName: validateNameField("lastName", lastName),
+    };
+
+    if (Object.values(fieldErrors).some(Boolean))
+      return badRequest({ fieldErrors, fields });
+
+    const user = await login({ emailAddress, password });
+
+    if (!user) {
+      return badRequest({
+        fields,
+        formError: `Invalid credentials`,
+      });
     }
+
+    return createUserSession(user.id, '/');
+  }
+
+  async function handleRegister(form: FormData, loginType: string) {
+    const emailAddress = form.get('emailAddress');
+    const password = form.get('password');
+    const firstName = form.get('firstName');
+    const lastName = form.get('lastName');
+
+    if (
+      typeof emailAddress !== 'string' ||
+      typeof password !== 'string' ||
+      typeof firstName !== 'string' ||
+      typeof lastName !== 'string'
+    ) {
+      return badRequest({
+        formError: `There was a problem with data submitted`,
+      });
+    }
+    const fields = { emailAddress, password, firstName, lastName };
+    const fieldErrors = {
+      emailAddress: validateEmail(emailAddress),
+      password: validatePassword(password),
+      firstName: validateNameField('firstName', firstName),
+      lastName: validateNameField('lastName', lastName),
+    };
 
     if (Object.values(fieldErrors).some(Boolean))
       return badRequest({ fieldErrors, fields });
 
     const userExists = await db.user.findFirst({
-      where: {emailAddress},
+      where: { emailAddress },
     });
 
     if (userExists) {
@@ -122,22 +129,26 @@ export const action: ActionFunction = async ({request}) => {
         formError: 'Unable to register. Email already used',
       });
     }
-    
-    const user = await register({ emailAddress, password, firstName, lastName});
+
+    const user = await register({
+      emailAddress,
+      password,
+      firstName,
+      lastName,
+    });
     if (!user) {
       return badRequest({
         fields,
         formError: `There was a problem with registering your account`,
-      })
+      });
     }
-    return createUserSession(user.id, "/");
+    return createUserSession(user.id, '/');
   }
-  
-  
+
   const objLit: AuthAction = {
     login: () => handleLogin(form, loginType),
     register: () => handleRegister(form, loginType),
-  }
+  };
 
   return objLit[authType]();
 };
@@ -145,25 +156,26 @@ export const action: ActionFunction = async ({request}) => {
 export default function Auth() {
   const actionData = useActionData<ActionData>();
   const [searchParams] = useSearchParams();
-  const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
   return (
-    <div>
-      <h1>Login to SFE Logistics</h1>
+    <div className="flex flex-col flex-1 items-center">
       <Form method="post">
-        <input name="redirectTo" type="hidden" value={searchParams.get('redirectTo') ?? undefined} />
+        <input
+          name="redirectTo"
+          type="hidden"
+          value={searchParams.get('redirectTo') ?? undefined}
+        />
         <fieldset>
           <div className="flex flex-col">
-            <legend className="sr-only">
-              Login or Register?
-            </legend>
+            <legend className="sr-only">Login or Register?</legend>
             <label>
               <input
                 name="loginType"
                 type="radio"
                 value="login"
-                defaultChecked={authMode === "login"}
-                onChange={() => setAuthMode("login")}
-              />{" "}
+                defaultChecked={authMode === 'login'}
+                onChange={() => setAuthMode('login')}
+              />{' '}
               Login
             </label>
             <label>
@@ -171,13 +183,16 @@ export default function Auth() {
                 name="loginType"
                 type="radio"
                 value="register"
-                defaultChecked={authMode === "register"}
-                onChange={() => setAuthMode("register")}
-              />{" "}
+                defaultChecked={authMode === 'register'}
+                onChange={() => setAuthMode('register')}
+              />{' '}
               Registration
             </label>
           </div>
-          {authMode === "register" ? (
+          {/*<div className="self-center max-w-lg">*/}
+          {/*  <AuthForm />*/}
+          {/*</div>*/}
+          {authMode === 'register' ? (
             <>
               <div className="flex flex-col">
                 <label htmlFor="first-name">First Name</label>
@@ -212,7 +227,7 @@ export default function Auth() {
               id="input-email-address"
               maxLength={100}
               name="emailAddress"
-              type="email" 
+              type="email"
             />
             {actionData?.fieldErrors?.emailAddress ? (
               <p className="text-red-600" role="alert" id="email-error">
@@ -226,39 +241,28 @@ export default function Auth() {
               className="border-2 border-slate-500"
               id="input-password"
               maxLength={100}
-              name="password" 
+              name="password"
               type="password"
               autoComplete="off"
-              aria-invalid={
-                Boolean(
-                  actionData?.fieldErrors?.password
-                )
-              }
+              aria-invalid={Boolean(actionData?.fieldErrors?.password)}
               aria-errormessage={
-                actionData?.fieldErrors?.password ? "password-error" : undefined
+                actionData?.fieldErrors?.password ? 'password-error' : undefined
               }
             />
             {actionData?.fieldErrors?.password ? (
-              <p
-                className="text-red-600"
-                role="alert"
-                id="password-error"
-              >
+              <p className="text-red-600" role="alert" id="password-error">
                 {actionData.fieldErrors.password}
               </p>
             ) : null}
           </div>
           <div id="form-error-message">
             {actionData?.formError ? (
-              <p
-                className="form-validation-error"
-                role="alert"
-              >
+              <p className="form-validation-error" role="alert">
                 {actionData.formError}
               </p>
             ) : null}
           </div>
-          <button 
+          <button
             className="bg-slate-800 text-white px-4 py-2 mt-4"
             type="submit"
           >
@@ -268,4 +272,4 @@ export default function Auth() {
       </Form>
     </div>
   );
-};
+}
