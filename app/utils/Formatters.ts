@@ -1,4 +1,4 @@
-import type {Prisma} from "@prisma/client";
+import type { Prisma } from '@prisma/client';
 
 const LBS_TO_KG = 0.453;
 
@@ -7,4 +7,31 @@ export default class Formatters {
     const weightAsKgs = weight.times(LBS_TO_KG).toFixed(2);
     return `${weight} Lbs (~${weightAsKgs} Kgs)`;
   }
+
+  /**
+   * Helper method that applies simple date formatting to a date and returns a string representation
+   * @param inputDate
+   * @param locale
+   */
+  static formatDate(inputDate: Date, locale?: string): string {
+    const formatOptions: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+      timeZone: 'America/Jamaica',
+      timeZoneName: 'short',
+    };
+    return new Intl.DateTimeFormat(
+      locale ? locale : 'en-US',
+      formatOptions
+    ).format(inputDate);
+  }
+
+  // TODO: complete implementation
+  // static getRelativeTime(inputDate: Date): string {
+  // compare to current date/time to get delta
+  //   const formatOptions: Intl.RelativeTimeFormatOptions = {
+  //     localeMatcher: 'best fit',
+  //   }
+  // }
 }

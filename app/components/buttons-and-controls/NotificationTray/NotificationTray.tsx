@@ -6,6 +6,7 @@ import { NotificationItemCard } from '~/components/buttons-and-controls/Notifica
 import { BsBellFill } from 'react-icons/all';
 import { TransitionChildWrapper } from '~/components/shared/TransitionChildWrapper/TransitionChildWrapper';
 import { NoDataCard } from '~/components/shared/NoDataCard/NoDataCard';
+import Formatters from '~/utils/Formatters';
 
 interface NotificationTrayProps {
   clearAllAction?: () => void;
@@ -16,19 +17,19 @@ export const NotificationTray: FC<NotificationTrayProps> = ({
   notificationItems,
 }) => {
   return (
-    <Popover>
+    <Popover className="relative">
       <Popover.Button>
         <BsBellFill className="text-slate-600" size={24} />
       </Popover.Button>
       <TransitionChildWrapper>
-        <Popover.Panel>
-          <div className="bg-gray-50 mt-2 p-2 rounded">
+        <Popover.Panel className="absolute right-0 mt-7 z-10">
+          <div className="bg-slate-50 border-1 border-slate-300 p-2 rounded w-[19.5rem]">
             {notificationItems.length ? (
               notificationItems.map((notification) => (
                 <NotificationItemCard
                   key={`notification-${notification.id}`}
                   {...notification}
-                  timeSince={notification.createdAt.toTimeString()}
+                  timeSince={Formatters.formatDate(notification.createdAt)}
                 />
               ))
             ) : (

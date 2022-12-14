@@ -24,10 +24,16 @@ export const AuthForm: FC<AuthFormProps> = ({ fieldErrors, formError }) => {
   return (
     <CardWrapper>
       <div className="grid grid-cols-1 gap-y-2">
-        <div className="flex">
-          <h1 className="ml-0 text-center text-slate-600 text-2xl">
-            {authMode === 'login' ? 'Login to your' : 'Register a new'} account
+        <div className="flex flex-col max-w-md mt-2 mx-auto">
+          <span className="text-center text-5xl">✈️</span>
+          <h1 className="ml-0 text-center text-slate-600 text-3xl">
+            SaiForceOne Express Logistics Company
           </h1>
+        </div>
+        <div className="flex">
+          <h2 className="ml-0 text-center text-slate-600 text-2xl">
+            {authMode === 'login' ? 'Login to your' : 'Register a new'} account
+          </h2>
         </div>
         <input type="hidden" value={authMode} />
         {authMode === 'register' ? (
