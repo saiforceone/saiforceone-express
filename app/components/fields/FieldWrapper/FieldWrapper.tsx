@@ -2,9 +2,9 @@ import React from 'react';
 import type { FC } from 'react';
 import { BsExclamationOctagonFill } from 'react-icons/bs';
 
-interface FieldWrapperProps {
+export interface FieldWrapperProps {
   disabled?: boolean;
-  field: React.ReactNode;
+  field: React.ReactNode | JSX.Element;
   fieldError?: string;
   fieldId?: string;
   fieldLabel?: string | undefined;

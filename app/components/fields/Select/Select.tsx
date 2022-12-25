@@ -2,12 +2,7 @@ import React from 'react';
 import type { FC, SelectHTMLAttributes } from 'react';
 
 import { FieldWrapper } from '~/components/fields/FieldWrapper/FieldWrapper';
-
-export interface SelectOption {
-  key: string;
-  label: string;
-  value?: string;
-}
+import { SelectOption } from '~/shared/interfaces/uiElements.interface';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   fieldLabel?: string;
