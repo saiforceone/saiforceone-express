@@ -1,7 +1,7 @@
 import React from 'react';
 import type { FC } from 'react';
 import { IconButton } from '~/components/shared/IconButton/IconButton';
-import { BsCheckSquareFill } from 'react-icons/all';
+import { BsCheckSquareFill } from 'react-icons/bs';
 
 interface NoDataCardProps {
   action?: () => void;

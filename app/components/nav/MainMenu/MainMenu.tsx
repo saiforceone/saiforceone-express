@@ -20,10 +20,16 @@ export const MainMenu: FC<MainMenuProps> = ({ notifications, userProfile }) => {
           SaiForce Express Logistics
         </h1>
         <div className="flex items-center gap-x-4">
-          <a className="text-white text-xl hover:underline" href="/dashboard">
+          <a
+            className="text-white text-xl hover:underline"
+            href="/app/dashboard"
+          >
             Dashboard
           </a>
-          <a className="text-white text-xl hover:underline" href="/shipments">
+          <a
+            className="text-white text-xl hover:underline"
+            href="/app/shipments"
+          >
             Shipments
           </a>
           {userProfile.accountType === 'ADMIN' ? <AdminMenu /> : null}

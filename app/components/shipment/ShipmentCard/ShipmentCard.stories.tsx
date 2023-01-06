@@ -27,6 +27,14 @@ Primary.args = {
     trackingNumber: 'TRK-12340901-9223',
     shippingWeight: new Prisma.Decimal(4.41),
     measuredWeight: null,
+    shipmentCategory: {
+      category: 'Sample Category',
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      id: 'cat-1234',
+    },
+    itemDescription: 'Shipment description',
+    packageType: 'box',
   },
   shipmentCategory: 'PC Parts, Motherboard',
   shipmentStatuses: [

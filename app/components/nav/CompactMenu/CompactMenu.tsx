@@ -3,7 +3,9 @@ import type { FC } from 'react';
 import type { NotificationItem } from '@prisma/client';
 import type { UserProfile } from '~/shared/interfaces/user.interface';
 import { Disclosure, Popover } from '@headlessui/react';
-import { BiMenu, BsBox, FaChartPie, FaCogs, FaUsersCog } from 'react-icons/all';
+import { FaChartPie, FaCogs, FaUsersCog } from 'react-icons/fa';
+import { BiMenu } from 'react-icons/bi';
+import { BsBox } from 'react-icons/bs';
 import { TransitionChildWrapper } from '~/components/shared/TransitionChildWrapper/TransitionChildWrapper';
 import { MenuItem } from '~/components/buttons-and-controls/MenuItem/MenuItem';
 import { UserProfileCard } from '~/components/buttons-and-controls/UserProfileCard/UserProfileCard';
@@ -15,7 +17,7 @@ interface CompactMenuProps {
   notifications: NotificationItem[];
   userProfile: UserProfile;
 }
-
+// TODO: Add backdrop / overlay when compact menu is shown
 // TODO: Fix this later :(
 // const SlideTransitionOpts: TransitionClasses = {
 //   enter: 'transition ease-in-out duration-300 transform',

@@ -2,7 +2,7 @@ import React from 'react';
 import { Popover } from '@headlessui/react';
 import { TransitionChildWrapper } from '~/components/shared/TransitionChildWrapper/TransitionChildWrapper';
 import { MenuItem } from '~/components/buttons-and-controls/MenuItem/MenuItem';
-import { BsBox } from 'react-icons/all';
+import { BsBox } from 'react-icons/bs';
 
 export const AdminMenu = (): React.ReactElement => {
   return (

@@ -8,5 +8,5 @@ interface ContentPageWrapperProps {
 export const ContentPageWrapper: FC<ContentPageWrapperProps> = ({
   content,
 }) => {
-  return <div className="p-2">{content}</div>;
+  return <div className="flex flex-col flex-1">{content}</div>;
 };

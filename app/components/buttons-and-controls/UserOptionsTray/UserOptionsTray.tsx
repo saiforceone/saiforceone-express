@@ -5,7 +5,9 @@ import { Popover } from '@headlessui/react';
 import { UserProfileCard } from '~/components/buttons-and-controls/UserProfileCard/UserProfileCard';
 import { TransitionChildWrapper } from '~/components/shared/TransitionChildWrapper/TransitionChildWrapper';
 import { MenuItem } from '~/components/buttons-and-controls/MenuItem/MenuItem';
-import { BiLogOut, BsBox, FaCogs } from 'react-icons/all';
+import { BsBox } from 'react-icons/bs';
+import { BiLogOut } from 'react-icons/bi';
+import { FaCogs } from 'react-icons/fa';
 import { StackedLabel } from '~/components/badges-and-labels/StackedLabel/StackedLabel';
 import Formatters from '~/utils/Formatters';
 

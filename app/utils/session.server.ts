@@ -1,36 +1,33 @@
-import bcrypt from "bcryptjs";
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import bcrypt from 'bcryptjs';
+import { createCookieSessionStorage, redirect } from '@remix-run/node';
 
-import { db } from "./db.server";
+import { db } from './db.server';
 
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
-  throw new Error("SESSION_SECRET has not been set.");
+  throw new Error('SESSION_SECRET has not been set.');
 }
 
 const SALT = process.env.SALT;
 if (!SALT) {
-  throw new Error("SALT has not been set.");
+  throw new Error('SALT has not been set.');
 }
 
 type LoginForm = {
   emailAddress: string;
   password: string;
-}
+};
 
 type RegisterForm = {
   firstName: string;
   lastName: string;
   emailAddress: string;
   password: string;
-}
+};
 
-export async function login({
-  emailAddress,
-  password,
-}: LoginForm) {
+export async function login({ emailAddress, password }: LoginForm) {
   const user = await db.user.findUnique({
-    where: { emailAddress }
+    where: { emailAddress },
   });
 
   if (!user) return null;
@@ -39,7 +36,7 @@ export async function login({
 
   if (!isPasswordMatched) return null;
 
-  return { id: user.id, emailAddress }
+  return { id: user.id, emailAddress };
 }
 
 export async function register({
@@ -48,28 +45,39 @@ export async function register({
   emailAddress,
   password,
 }: RegisterForm) {
-  const pwHash = await bcrypt.hash(password, 10)
-  const user = await db.user.create({data: {
-    firstName,
-    lastName,
-    emailAddress,
-    password: pwHash,
-    active: true,
-  }});
+  const pwHash = await bcrypt.hash(password, 10);
+  const user = await db.user.create({
+    data: {
+      firstName,
+      lastName,
+      emailAddress,
+      password: pwHash,
+      active: true,
+    },
+  });
 
-  return {id: user.id, emailAddress};
+  return { id: user.id, emailAddress };
 }
 
-export async function getUser(request: Request, getAccountType: boolean = false) {
+export async function getUser(
+  request: Request,
+  getAccountType: boolean = false
+) {
   const userId = await getUserId(request);
-  if (typeof userId !== "string") {
+  if (typeof userId !== 'string') {
     return null;
   }
 
   try {
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, emailAddress: true,  accountType: getAccountType},
+      select: {
+        id: true,
+        emailAddress: true,
+        firstName: true,
+        lastName: true,
+        accountType: getAccountType,
+      },
     });
     return user;
   } catch {
@@ -79,50 +87,46 @@ export async function getUser(request: Request, getAccountType: boolean = false)
 
 export async function logout(request: Request) {
   const session = await getUserSession(request);
-  return redirect("/login", {
+  return redirect('/login', {
     headers: {
-      "Set-Cookie": await storage.destroySession(session),
+      'Set-Cookie': await storage.destroySession(session),
     },
   });
 }
 
-
 const storage = createCookieSessionStorage({
   cookie: {
-    name: "sfe_session",
+    name: 'sfe_session',
     // normally you want this to be `secure: true`
     // but that doesn't work on localhost for Safari
     // https://web.dev/when-to-use-local-https/
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === 'production',
     secrets: [sessionSecret],
-    sameSite: "lax",
-    path: "/",
+    sameSite: 'lax',
+    path: '/',
     maxAge: 60 * 60 * 24 * 30,
     httpOnly: true,
   },
 });
 
-export async function createUserSession(
-  userId: string,
-  redirectTo: string
-) {
+export async function createUserSession(userId: string, redirectTo: string) {
   const session = await storage.getSession();
-  session.set("userId", userId);
+  session.set('userId', userId);
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await storage.commitSession(session),
+      'Set-Cookie': await storage.commitSession(session),
     },
   });
 }
 
 function getUserSession(request: Request) {
-  return storage.getSession(request.headers.get("Cookie"));
+  return storage.getSession(request.headers.get('Cookie'));
 }
 
 export async function getUserId(request: Request) {
   const session = await getUserSession(request);
-  const userId = session.get("userId");
-  if (!userId || typeof userId !== "string") return null;
+  const userId = session.get('userId');
+  if (!userId || typeof userId !== 'string') return null;
   return userId;
 }
 
@@ -131,11 +135,9 @@ export async function requireUserId(
   redirectTo: string = new URL(request.url).pathname
 ) {
   const session = await getUserSession(request);
-  const userId = session.get("userId");
-  if (!userId || typeof userId !== "string") {
-    const searchParams = new URLSearchParams([
-      ["redirectTo", redirectTo],
-    ]);
+  const userId = session.get('userId');
+  if (!userId || typeof userId !== 'string') {
+    const searchParams = new URLSearchParams([['redirectTo', redirectTo]]);
     throw redirect(`/login?${searchParams}`);
   }
   return userId;

@@ -3,7 +3,7 @@ import { Popover } from '@headlessui/react';
 import type { FC } from 'react';
 import type { NotificationItem } from '@prisma/client';
 import { NotificationItemCard } from '~/components/buttons-and-controls/NotificationItemCard/NotificationItemCard';
-import { BsBellFill } from 'react-icons/all';
+import { BsBellFill } from 'react-icons/bs';
 import { TransitionChildWrapper } from '~/components/shared/TransitionChildWrapper/TransitionChildWrapper';
 import { NoDataCard } from '~/components/shared/NoDataCard/NoDataCard';
 import Formatters from '~/utils/Formatters';

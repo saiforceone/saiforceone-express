@@ -3,9 +3,9 @@ import type { FC } from 'react';
 import {
   BsCheckSquareFill,
   BsExclamationSquareFill,
+  BsInfoSquareFill,
   BsX,
-} from 'react-icons/all';
-import { BsInfoSquareFill } from 'react-icons/bs';
+} from 'react-icons/bs';
 
 enum PackageStatus {
   'receivedWarehouse' = 'RECEIVED_WAREHOUSE',
@@ -18,7 +18,7 @@ enum PackageStatus {
 const commonIconClasses = 'self-center text-slate-500';
 const commonIconSize = 20;
 
-const getIcon = (status: PackageStatus): React.ReactElement => {
+const getIcon = (status: string): React.ReactElement => {
   switch (status) {
     case PackageStatus.customsDetained:
       return (
@@ -45,7 +45,7 @@ interface AlertProps {
   alertText: string;
   alertTitle: string;
   dismissAction?: () => void;
-  packageStatus: PackageStatus;
+  packageStatus: string;
 }
 
 export const PackageAlert: FC<AlertProps> = ({

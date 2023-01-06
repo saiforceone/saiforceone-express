@@ -67,23 +67,27 @@ model UserContact {
 }
 
 model Shipment {
-  id                 String           @id @default(uuid())
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  id                 String             @id @default(uuid())
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
   userId             String
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   arrivalDate        DateTime
   totalDue           Decimal
   mailboxId          String
-  mailbox            Mailbox          @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  mailbox            Mailbox            @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  itemDescription    String?
+  packageType        String?
   source             String
   trackingNumber     String
+  lastStatusId       String
+  lastStatus         ShipmentStatus?
   measuredWeight     Decimal?
   shippingWeight     Decimal
-  ShipmentStatues    ShipmentStatus[]
+  shipmentStatuses   ShipmentStatus[]
   shipmentCategoryId String
-  shipmentCategory   ShipmentCategory @relation(fields: [shipmentCategoryId], references: [id])
-  ShipmentDocuments   ShipmentDocument[]
+  shipmentCategory   ShipmentCategory   @relation(fields: [shipmentCategoryId], references: [id])
+  shipmentDocuments  ShipmentDocument[]
 }
 
 model ShipmentCategory {
@@ -131,12 +135,12 @@ model NotificationItem {
 }
 
 model ShipmentDocument {
-  id            String          @id @default(uuid())
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  name          String
-  url           String
-  shipmentId    String
-  shipment      Shipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-  documentType  ShipmentDocType @default(OTHER)
+  id           String          @id @default(uuid())
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  name         String
+  url          String
+  shipmentId   String
+  shipment     Shipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  documentType ShipmentDocType @default(OTHER)
 }

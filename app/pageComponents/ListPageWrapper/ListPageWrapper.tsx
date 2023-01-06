@@ -38,8 +38,8 @@ export const ListPageWrapper: FC<ListPageWrapperProps> = ({
       </div>
       <div
         className={[
-          'bg-amber-100 flex flex-1 p-2',
-          showContentRightOnly ? 'flex' : 'hidden',
+          'bg-slate-100 flex flex-1',
+          // showContentRightOnly ? 'flex' : 'hidden',
         ].join(' ')}
       >
         {contentRight}
