@@ -7,7 +7,9 @@ interface NoDataCardProps {
   action?: () => void;
   actionElement?: React.ReactElement;
   iconElement?: React.ReactElement;
+  noBorder?: boolean;
   primaryText: string;
+  secondaryIconElement?: React.ReactElement;
   secondaryText?: string;
 }
 
@@ -15,7 +17,9 @@ export const NoDataCard: FC<NoDataCardProps> = ({
   action,
   actionElement,
   iconElement,
+  noBorder,
   primaryText,
+  secondaryIconElement,
   secondaryText,
 }) => {
   const icon = actionElement ? (
@@ -24,14 +28,19 @@ export const NoDataCard: FC<NoDataCardProps> = ({
     <BsCheckSquareFill className="self-center" />
   );
   return (
-    <div className="bg-slate-50 border-1 border-slate-200 p-2 rounded">
+    <div
+      className={[
+        'bg-slate-50 p-2 rounded',
+        noBorder ? '' : 'border-1 border-slate-200',
+      ].join(' ')}
+    >
       {iconElement ? (
         <div className="flex flex-1 flex-col items-center">{iconElement}</div>
       ) : null}
       <div className="flex flex-col items-center mt-2">
-        <h2 className="text-slate-600 text-2xl">{primaryText}</h2>
+        <h2 className="text-slate-400 text-2xl">{primaryText}</h2>
         {secondaryText ? (
-          <p className="text-slate-500 text-lg">{secondaryText}</p>
+          <p className="text-slate-400 text-lg">{secondaryText}</p>
         ) : null}
       </div>
       {action ? (
@@ -39,6 +48,11 @@ export const NoDataCard: FC<NoDataCardProps> = ({
           <IconButton icon={icon} onClick={action} />
         </div>
       ) : null}
+      {secondaryIconElement && (
+        <div className="flex items-center justify-center mt-4">
+          {secondaryIconElement}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,61 +1,60 @@
 import React, { useState } from 'react';
 import type { FC } from 'react';
-import type { Mailbox } from '@prisma/client';
-import { BsTrash } from 'react-icons/all';
+import { BsBox, BsTrash } from 'react-icons/bs';
 import { IconButton } from '~/components/shared/IconButton/IconButton';
 import { StackedLabel } from '~/components/badges-and-labels/StackedLabel/StackedLabel';
 import { ConfirmDialog } from '~/components/dialogs/ConfirmDialog/ConfirmDialog';
+import type { CompositeMailboxListItem } from '~/types';
+import { Label } from '~/components/badges-and-labels/Label/Label';
 
 interface MailboxCardProps {
-  mailBoxData: Mailbox;
+  mailBoxData: CompositeMailboxListItem;
+  showDelete: boolean;
 }
 
-export const MailboxCard: FC<MailboxCardProps> = ({ mailBoxData }) => {
+export const MailboxCard: FC<MailboxCardProps> = ({
+  mailBoxData,
+  showDelete,
+}) => {
   const [promptDelete, setPromptDelete] = useState(false);
   return (
-    <div className="flex flex-col bg-slate-50 p-2 rounded">
-      <div className="flex flex-1 items-center justify-between">
-        <h2 className="text-lg uppercase">Mailbox</h2>
-        <div className="flex gap-x-2">
-          <IconButton
-            icon={<BsTrash className="self-center" />}
-            onClick={() => setPromptDelete(true)}
-          />
+    <a href={`/app/mailboxes/${mailBoxData.id}`}>
+      <div className="flex flex-col bg-slate-50 p-2 rounded">
+        <div className="flex flex-1 items-center justify-between">
+          <div className="flex flex-1 items-center">
+            <h2 className="mr-2 text-lg uppercase">Mailbox </h2>
+            <Label
+              iconElement={<BsBox />}
+              labelText={`${mailBoxData._count.shipments}`}
+            />
+          </div>
+          {showDelete && (
+            <div className="flex gap-x-2">
+              <IconButton
+                icon={<BsTrash className="self-center" />}
+                onClick={() => setPromptDelete(true)}
+              />
+            </div>
+          )}
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-        <div className="flex flex-1">
+        <div className="flex gap-x-4 mt-2">
           <StackedLabel labelText="Unit #" valueText={mailBoxData.unitCode} />
+          <div className="flex flex-1">
+            <StackedLabel
+              labelText="Address Line 1"
+              valueText={mailBoxData.addressLine1}
+            />
+          </div>
         </div>
-        <div className="flex flex-1">
-          <StackedLabel
-            labelText="Address Line 1"
-            valueText={mailBoxData.addressLine1}
-          />
-        </div>
-        <div className="flex flex-1">
-          <StackedLabel
-            labelText="Address Line 2"
-            valueText={
-              mailBoxData.addressLine2 ? mailBoxData.addressLine2 : 'N/A'
-            }
-          />
-        </div>
+        <ConfirmDialog
+          cancelAction={() => setPromptDelete(false)}
+          confirmAction={() => {}}
+          promptText={`You are about to delete the mailbox ${mailBoxData.unitCode}. This action is permanent. Would you like to continue?`}
+          titleText="Delete Mailbox?"
+          visible={promptDelete}
+        />
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-        <StackedLabel labelText="ZipCode" valueText={mailBoxData.zipCode} />
-        <StackedLabel labelText="State" valueText={mailBoxData.state} />
-        <StackedLabel labelText="City" valueText={mailBoxData.city} />
-        <StackedLabel labelText="Country" valueText={mailBoxData.country} />
-      </div>
-      <ConfirmDialog
-        cancelAction={() => setPromptDelete(false)}
-        confirmAction={() => {}}
-        promptText={`You are about to delete the mailbox ${mailBoxData.unitCode}. This action is permanent. Would you like to continue?`}
-        titleText="Delete Mailbox?"
-        visible={promptDelete}
-      />
-    </div>
+    </a>
   );
 };

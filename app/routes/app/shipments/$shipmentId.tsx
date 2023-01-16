@@ -1,8 +1,8 @@
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
+import { useLoaderData, useNavigate } from '@remix-run/react';
 import { ContentPageWrapper } from '~/pageComponents/ContentPageWrapper/ContentPageWrapper';
 import { getShipmentById } from '~/models/shipment.server';
-import { useLoaderData } from '@remix-run/react';
 import { SectionHeader } from '~/components/shared/SectionHeader/SectionHeader';
 import { IconButton } from '~/components/shared/IconButton/IconButton';
 import { BsX } from 'react-icons/bs';
@@ -12,6 +12,8 @@ import { NoDataCard } from '~/components/shared/NoDataCard/NoDataCard';
 import { getShipmentStatuses } from '~/models/shipmentStatus.server';
 import { PackageAlert } from '~/components/badges-and-labels/PackageAlert/PackageAlert';
 import { getShipmentDocuments } from '~/models/shipmentDocuments.server';
+import { SHIPMENT_STATUS_VALUES } from '~/utils/values';
+import Formatters from '~/utils/Formatters';
 
 type LoaderData = {
   shipment: Awaited<ReturnType<typeof getShipmentById>>;
@@ -20,15 +22,16 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ params }) => {
-  const { id } = params;
-  if (!id) return json({ error: 'no data' });
-  const shipment = await getShipmentById(id);
-  const shipmentDocuments = await getShipmentDocuments(id);
-  const shipmentStatuses = await getShipmentStatuses(id);
+  const { shipmentId } = params;
+  if (!shipmentId) return json({ error: 'no data' });
+  const shipment = await getShipmentById(shipmentId);
+  const shipmentDocuments = await getShipmentDocuments(shipmentId);
+  const shipmentStatuses = await getShipmentStatuses(shipmentId);
   return json({ shipment, shipmentDocuments, shipmentStatuses });
 };
 
 export default function ShipmentPage() {
+  const navigate = useNavigate();
   const { shipment, shipmentStatuses } = useLoaderData<LoaderData>();
 
   return (
@@ -43,7 +46,10 @@ export default function ShipmentPage() {
                   className="bg-slate-600 rounded px-2 py-1 text-white"
                   title="Manage Docs"
                 />
-                <IconButton icon={<BsX className="self-center" size={20} />} />
+                <IconButton
+                  icon={<BsX className="self-center" size={20} />}
+                  onClick={() => navigate('/app/shipments')}
+                />
               </div>
             }
           />
@@ -90,8 +96,10 @@ export default function ShipmentPage() {
                     <PackageAlert
                       key={status.id}
                       packageStatus={status.packageStatus}
-                      alertTitle={status.packageStatus}
-                      alertText={status.createdAt}
+                      alertTitle={SHIPMENT_STATUS_VALUES[status.packageStatus]}
+                      alertText={Formatters.formatDateTime(
+                        new Date(status.createdAt)
+                      )}
                     />
                   ))
                 ) : (

@@ -1,5 +1,6 @@
 import { Outlet, useLoaderData } from '@remix-run/react';
 import { json, redirect } from '@remix-run/node';
+import { PackageStatus, Prisma } from '@prisma/client';
 import type { LoaderFunction } from '@remix-run/node';
 import { getUser } from '~/utils/session.server';
 import { getShipmentsForUser } from '~/models/shipment.server';
@@ -7,7 +8,8 @@ import type { UserProfile } from '~/shared/interfaces/user.interface';
 import { ShipmentCard } from '~/components/shipment/ShipmentCard/ShipmentCard';
 import { NoDataCard } from '~/components/shared/NoDataCard/NoDataCard';
 import { ListPageWrapper } from '~/pageComponents/ListPageWrapper/ListPageWrapper';
-import { Prisma } from '@prisma/client';
+import { ShipmentFilter } from '~/components/shipment/ShipmentFilter/ShipmentFilter';
+import { ShipmentStatuses } from '~/constants';
 
 type LoaderData = {
   shipments: Awaited<ReturnType<typeof getShipmentsForUser>>;
@@ -17,7 +19,19 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request);
   if (!user) return redirect('/auth');
-  let shipments = await getShipmentsForUser(user.id);
+
+  const url = new URL(request.url);
+
+  const filterText = url.searchParams.get('filter');
+  const status = url.searchParams.get('status') as PackageStatus;
+
+  let shipmentStatus = status ? PackageStatus[status] : null;
+
+  let shipments = await getShipmentsForUser(
+    user.id,
+    filterText || '',
+    shipmentStatus
+  );
 
   return json({ user, shipments });
 };
@@ -59,6 +73,7 @@ export default function ShipmentsIndex() {
   return (
     <ListPageWrapper
       contentLeft={ShipmentList}
+      contentLeftHeader={<ShipmentFilter statusOptions={ShipmentStatuses} />}
       contentRight={<Outlet />}
       pageTitle="Shipments"
       showContentRightOnly={false}

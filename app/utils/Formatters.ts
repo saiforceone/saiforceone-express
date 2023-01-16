@@ -2,6 +2,8 @@ import type { Prisma } from '@prisma/client';
 
 const LBS_TO_KG = 0.453;
 
+type TimeStyle = 'long' | 'short' | 'medium' | 'full' | undefined;
+
 export default class Formatters {
   static formatWeight(weight: Prisma.Decimal): string {
     const weightAsKgs = weight.times(LBS_TO_KG).toFixed(2);
@@ -21,6 +23,22 @@ export default class Formatters {
       timeZone: 'America/Jamaica',
       timeZoneName: 'short',
     };
+    return new Intl.DateTimeFormat(
+      locale ? locale : 'en-US',
+      formatOptions
+    ).format(inputDate);
+  }
+
+  static formatDateTime(
+    inputDate: Date,
+    timeStyle: TimeStyle = 'medium',
+    locale?: string
+  ): string {
+    const formatOptions: Intl.DateTimeFormatOptions = {
+      dateStyle: 'medium',
+      timeStyle,
+    };
+
     return new Intl.DateTimeFormat(
       locale ? locale : 'en-US',
       formatOptions

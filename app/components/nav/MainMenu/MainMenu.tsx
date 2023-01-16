@@ -6,6 +6,7 @@ import { UserOptionsTray } from '~/components/buttons-and-controls/UserOptionsTr
 import { NotificationTray } from '~/components/buttons-and-controls/NotificationTray/NotificationTray';
 import { CompactMenu } from '~/components/nav/CompactMenu/CompactMenu';
 import { AdminMenu } from '~/components/nav/AdminMenu/AdminMenu';
+import { Link } from '@remix-run/react';
 
 interface MainMenuProps {
   userProfile: UserProfile;
@@ -20,18 +21,15 @@ export const MainMenu: FC<MainMenuProps> = ({ notifications, userProfile }) => {
           SaiForce Express Logistics
         </h1>
         <div className="flex items-center gap-x-4">
-          <a
-            className="text-white text-xl hover:underline"
-            href="/app/dashboard"
-          >
+          <Link className="text-white text-xl hover:underline" to="dashboard">
             Dashboard
-          </a>
-          <a
-            className="text-white text-xl hover:underline"
-            href="/app/shipments"
-          >
+          </Link>
+          <Link className="text-white text-xl hover:underline" to="shipments">
             Shipments
-          </a>
+          </Link>
+          <Link className="text-white text-xl hover:underline" to="mailboxes">
+            Mailboxes
+          </Link>
           {userProfile.accountType === 'ADMIN' ? <AdminMenu /> : null}
         </div>
         <div className="md:flex hidden items-center gap-x-4">

@@ -22,7 +22,7 @@ export const ListPageWrapper: FC<ListPageWrapperProps> = ({
     <div className="flex flex-1 h-screen">
       <div
         className={[
-          'bg-slate-50 gap-y-2 px-2 w-full md:w-2/5',
+          'bg-slate-50 gap-y-2 px-2 w-full md:w-1/3',
           showContentRightOnly ? 'hidden' : 'flex flex-col',
         ].join(' ')}
       >

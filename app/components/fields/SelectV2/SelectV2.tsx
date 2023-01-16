@@ -1,14 +1,15 @@
 import React from 'react';
 import type { FC } from 'react';
+import { BsCheck2, BsChevronExpand } from 'react-icons/bs';
 import { Listbox } from '@headlessui/react';
 import { FieldWrapper } from '~/components/fields/FieldWrapper/FieldWrapper';
 import type { SelectOption } from '~/shared/interfaces/uiElements.interface';
-import { BsCheck2, BsChevronExpand } from 'react-icons/all';
 
 interface SelectV2Props {
   disabled?: boolean;
   fieldLabel?: string;
   onSelectOption: (opt: SelectOption) => void;
+  name?: string;
   placeholder: string;
   required?: boolean;
   selectOptions: SelectOption[];

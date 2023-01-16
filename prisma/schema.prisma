@@ -80,8 +80,7 @@ model Shipment {
   packageType        String?
   source             String
   trackingNumber     String
-  lastStatusId       String
-  lastStatus         ShipmentStatus?
+  lastStatus         PackageStatus?     @default(RECEIVED_WAREHOUSE)
   measuredWeight     Decimal?
   shippingWeight     Decimal
   shipmentStatuses   ShipmentStatus[]

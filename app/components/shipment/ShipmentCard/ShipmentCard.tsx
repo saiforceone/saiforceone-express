@@ -7,6 +7,7 @@ import { BsInfoSquareFill } from 'react-icons/bs';
 import type { ShipmentStatus } from '@prisma/client';
 import Formatters from '~/utils/Formatters';
 import type { CompositeShipment } from '~/types';
+import { Link } from '@remix-run/react';
 
 interface ShipmentCardProps {
   action?: () => void;
@@ -23,8 +24,9 @@ export const ShipmentCard: FC<ShipmentCardProps> = ({
   shipmentCategory,
   shipmentStatuses,
 }) => {
+  const shipmentLastStatus = shipment.lastStatus ? shipment.lastStatus : 'N/A';
   return (
-    <a href={`/app/shipments/${shipment.id}`}>
+    <Link to={`${shipment.id}`}>
       <div
         className={[
           active ? 'border-purple-700' : 'border-slate-300',
@@ -36,9 +38,7 @@ export const ShipmentCard: FC<ShipmentCardProps> = ({
           <div>
             <Label
               iconElement={<BsInfoSquareFill />}
-              labelText={
-                shipmentStatuses.length ? shipmentStatuses[0].packageStatus : ''
-              }
+              labelText={shipmentLastStatus}
             />
             <div className="flex items-center justify-between mt-4">
               <StackedLabel
@@ -73,9 +73,7 @@ export const ShipmentCard: FC<ShipmentCardProps> = ({
             <StackedLabel labelText="Category" valueText={shipmentCategory} />
             <Label
               iconElement={<BsInfoSquareFill />}
-              labelText={
-                shipmentStatuses.length ? shipmentStatuses[0].packageStatus : ''
-              }
+              labelText={shipmentLastStatus}
             />
           </div>
           <div className="flex gap-x-2 justify-between items-center mt-4">
@@ -105,6 +103,6 @@ export const ShipmentCard: FC<ShipmentCardProps> = ({
           </div>
         </div>
       </div>
-    </a>
+    </Link>
   );
 };

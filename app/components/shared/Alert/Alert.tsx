@@ -1,8 +1,12 @@
 import React from 'react';
 import type { FC } from 'react';
 import type { AlertType } from '~/shared/types/types';
-import { BsExclamationOctagonFill, BsInfoSquareFill } from 'react-icons/bs';
-import { BsCheckSquareFill, BsExclamationSquareFill } from 'react-icons/all';
+import {
+  BsExclamationOctagonFill,
+  BsInfoSquareFill,
+  BsCheckSquareFill,
+  BsExclamationSquareFill,
+} from 'react-icons/bs';
 
 interface AlertProps {
   alertText: string;
