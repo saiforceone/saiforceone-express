@@ -1,4 +1,9 @@
-import { Outlet, useLoaderData } from '@remix-run/react';
+import {
+  Outlet,
+  useLoaderData,
+  useLocation,
+  useTransition,
+} from '@remix-run/react';
 import { json, redirect } from '@remix-run/node';
 import { PackageStatus, Prisma } from '@prisma/client';
 import type { LoaderFunction } from '@remix-run/node';
@@ -10,6 +15,9 @@ import { NoDataCard } from '~/components/shared/NoDataCard/NoDataCard';
 import { ListPageWrapper } from '~/pageComponents/ListPageWrapper/ListPageWrapper';
 import { ShipmentFilter } from '~/components/shipment/ShipmentFilter/ShipmentFilter';
 import { ShipmentStatuses } from '~/constants';
+import type { CompositeShipment } from '~/types';
+import { useDisplayContent } from '~/hooks/useDisplayContent';
+import useWindowDimensions from '~/hooks/useWindowDimensions';
 
 type LoaderData = {
   shipments: Awaited<ReturnType<typeof getShipmentsForUser>>;
@@ -36,47 +44,64 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json({ user, shipments });
 };
 
-export default function ShipmentsIndex() {
-  const { shipments } = useLoaderData<LoaderData>();
+const renderContentLeft = (shipments: CompositeShipment[]) => {
+  return (
+    <div className="flex flex-col gap-y-2">
+      <div className="flex flex-col gap-y-2">
+        <h1 className="text-2xl text-slate-600 mx-3">Shipments</h1>
+        <ShipmentFilter statusOptions={ShipmentStatuses} />
+      </div>
+      <div className="flex flex-col gap-y-2 px-2">
+        {Array.isArray(shipments) ? (
+          shipments.map((shipment) => (
+            <ShipmentCard
+              key={shipment.id}
+              active={false}
+              shipment={{
+                ...shipment,
+                createdAt: new Date(shipment.createdAt),
+                updatedAt: new Date(shipment.updatedAt),
+                arrivalDate: new Date(shipment.arrivalDate),
+                totalDue: new Prisma.Decimal(shipment.totalDue),
+                measuredWeight: new Prisma.Decimal(
+                  shipment.measuredWeight ? shipment.measuredWeight : 0
+                ),
+                shippingWeight: new Prisma.Decimal(
+                  shipment.shippingWeight ? shipment.shippingWeight : 0
+                ),
+                shipmentCategory: {
+                  ...shipment.shipmentCategory,
+                  createdAt: new Date(shipment.shipmentCategory.createdAt),
+                  updatedAt: new Date(shipment.shipmentCategory.updatedAt),
+                },
+              }}
+            />
+          ))
+        ) : (
+          <NoDataCard primaryText="No Shipments" />
+        )}
+      </div>
+    </div>
+  );
+};
 
-  const ShipmentList = Array.isArray(shipments) ? (
-    shipments.map((shipment) => (
-      <ShipmentCard
-        key={shipment.id}
-        active={false}
-        shipment={{
-          ...shipment,
-          createdAt: new Date(shipment.createdAt),
-          updatedAt: new Date(shipment.updatedAt),
-          arrivalDate: new Date(shipment.arrivalDate),
-          totalDue: new Prisma.Decimal(shipment.totalDue),
-          measuredWeight: new Prisma.Decimal(
-            shipment.measuredWeight ? shipment.measuredWeight : 0
-          ),
-          shippingWeight: new Prisma.Decimal(
-            shipment.shippingWeight ? shipment.shippingWeight : 0
-          ),
-          shipmentCategory: {
-            ...shipment.shipmentCategory,
-            createdAt: new Date(shipment.shipmentCategory.createdAt),
-            updatedAt: new Date(shipment.shipmentCategory.updatedAt),
-          },
-        }}
-        shipmentCategory="Example"
-        shipmentStatuses={[]}
-      />
-    ))
-  ) : (
-    <NoDataCard primaryText="No Shipments" />
+export default function ShipmentsIndex() {
+  const location = useLocation();
+  const { shipments } = useLoaderData<LoaderData>() as unknown as LoaderData;
+  const { width } = useWindowDimensions();
+  const displayContent = useDisplayContent(
+    location.pathname === '/app/shipments'
   );
 
   return (
-    <ListPageWrapper
-      contentLeft={ShipmentList}
-      contentLeftHeader={<ShipmentFilter statusOptions={ShipmentStatuses} />}
-      contentRight={<Outlet />}
-      pageTitle="Shipments"
-      showContentRightOnly={false}
-    />
+    <>
+      {width ? (
+        <ListPageWrapper
+          contentLeft={renderContentLeft(shipments)}
+          contentRight={<Outlet />}
+          displayContent={displayContent}
+        />
+      ) : null}
+    </>
   );
 }

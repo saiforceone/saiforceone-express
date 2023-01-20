@@ -35,14 +35,33 @@ export const getShipmentsForUser = async (
       });
 };
 
-// export const getShipmentsSummaryForUser = async (userId: string) => {
-//   const groupedShipments = await db.shipment.groupBy({
-//     by: ['lastStatus'],
-//     where: {
-//       userId,
-//     },
-//   });
-// };
+export const getShipmentsSummaryForUser = async (
+  userId: string
+): Promise<{ [key: string]: number }> => {
+  const packageStatusesDistinct = await db.shipment.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      lastStatus: true,
+    },
+  });
+
+  const summary: { [key: string]: number } = {};
+
+  for (const statusObj of packageStatusesDistinct) {
+    if (statusObj.lastStatus) {
+      summary[statusObj.lastStatus] = await db.shipment.count({
+        where: {
+          userId,
+          lastStatus: statusObj.lastStatus,
+        },
+      });
+    }
+  }
+
+  return summary;
+};
 
 export const getShipmentById = async (
   shipmentId: string
@@ -55,8 +74,4 @@ export const getShipmentById = async (
       shipmentCategory: true,
     },
   });
-};
-
-const obj = {
-  RECEIVED_WAREHOUSE: 5,
 };

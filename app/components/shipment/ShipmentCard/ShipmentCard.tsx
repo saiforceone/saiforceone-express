@@ -1,10 +1,8 @@
 import React from 'react';
 import type { FC } from 'react';
 import { Label } from '~/components/badges-and-labels/Label/Label';
-import { ShipmentNotification } from '~/components/shipment/ShipmentNotification/ShipmentNotification';
 import { StackedLabel } from '~/components/badges-and-labels/StackedLabel/StackedLabel';
 import { BsInfoSquareFill } from 'react-icons/bs';
-import type { ShipmentStatus } from '@prisma/client';
 import Formatters from '~/utils/Formatters';
 import type { CompositeShipment } from '~/types';
 import { Link } from '@remix-run/react';
@@ -13,16 +11,12 @@ interface ShipmentCardProps {
   action?: () => void;
   active: Boolean;
   shipment: CompositeShipment;
-  shipmentCategory: string;
-  shipmentStatuses: ShipmentStatus[];
 }
 
 export const ShipmentCard: FC<ShipmentCardProps> = ({
   action,
   active = false,
   shipment,
-  shipmentCategory,
-  shipmentStatuses,
 }) => {
   const shipmentLastStatus = shipment.lastStatus ? shipment.lastStatus : 'N/A';
   return (
@@ -61,16 +55,16 @@ export const ShipmentCard: FC<ShipmentCardProps> = ({
                 <p className="text-slate-600 mr-2 text-sm font-medium uppercase">
                   Last Status
                 </p>
-                {shipmentStatuses.length ? (
-                  <ShipmentNotification shipmentStatus={shipmentStatuses[0]} />
-                ) : null}
               </div>
             </div>
           </div>
         </div>
         <div className="hidden sm:flex flex-col">
           <div className="flex justify-between items-center">
-            <StackedLabel labelText="Category" valueText={shipmentCategory} />
+            <StackedLabel
+              labelText="Category"
+              valueText={shipment.shipmentCategory.category}
+            />
             <Label
               iconElement={<BsInfoSquareFill />}
               labelText={shipmentLastStatus}
@@ -96,9 +90,6 @@ export const ShipmentCard: FC<ShipmentCardProps> = ({
               <p className="text-slate-600 mr-2 text-sm font-medium uppercase">
                 Last Status
               </p>
-              {shipmentStatuses.length ? (
-                <ShipmentNotification shipmentStatus={shipmentStatuses[0]} />
-              ) : null}
             </div>
           </div>
         </div>

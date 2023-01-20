@@ -11,3 +11,5 @@ export type CompositeMailbox = CompositeMailboxListItem & {
 export type CompositeShipment = Shipment & {
   shipmentCategory: ShipmentCategory;
 };
+
+type DisplayContent = 'left' | 'right' | 'both';
