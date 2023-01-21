@@ -1,9 +1,4 @@
-import {
-  Outlet,
-  useLoaderData,
-  useLocation,
-  useTransition,
-} from '@remix-run/react';
+import { Outlet, useLoaderData, useLocation } from '@remix-run/react';
 import { json, redirect } from '@remix-run/node';
 import { PackageStatus, Prisma } from '@prisma/client';
 import type { LoaderFunction } from '@remix-run/node';
@@ -87,7 +82,7 @@ const renderContentLeft = (shipments: CompositeShipment[]) => {
 
 export default function ShipmentsIndex() {
   const location = useLocation();
-  const { shipments } = useLoaderData<LoaderData>() as unknown as LoaderData;
+  const { shipments } = useLoaderData() as unknown as LoaderData;
   const { width } = useWindowDimensions();
   const displayContent = useDisplayContent(
     location.pathname === '/app/shipments'
